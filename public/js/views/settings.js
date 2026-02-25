@@ -406,6 +406,11 @@ export const SettingsMixin = {
     return `
     <div class="settings-panel">
       <h3>Email / SMTP</h3>
+      <div class="signing-app-banner">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Full signing workflows, PDF templates and signature fields are managed in the
+        <a href="/signing" target="_blank">Signing App ↗</a>.
+      </div>
       <p class="helper">Configure outgoing email for document-signing invitations, reminders, and completion notices. Credentials are stored per-user and never shared.</p>
       <div class="toggle-row" style="margin-bottom:1rem">
         <div>
