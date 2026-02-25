@@ -1,0 +1,40 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="primary" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#818CF8"/>
+      <stop offset="1" stop-color="#4F46E5"/>
+    </linearGradient>
+    <linearGradient id="page2" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#6366F1"/>
+      <stop offset="1" stop-color="#3730A3"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect x="32" y="32" width="448" height="448" rx="112" fill="#1E1E2E"/>
+
+  <!-- Back document (slightly offset, darker) -->
+  <rect x="160" y="128" width="200" height="252" rx="20" fill="url(#page2)" opacity="0.5" transform="rotate(6 260 254)"/>
+
+  <!-- Main document body -->
+  <rect x="140" y="140" width="200" height="252" rx="20" fill="url(#primary)" filter="url(#glow)"/>
+
+  <!-- Dog-ear fold corner -->
+  <path d="M284 140 L340 196 L284 196 Z" fill="#1E1E2E" opacity="0.35"/>
+  <path d="M284 140 L340 196" stroke="#1E1E2E" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Document lines -->
+  <line x1="172" y1="228" x2="308" y2="228" stroke="#ffffff" stroke-width="14" stroke-linecap="round" opacity="0.65"/>
+  <line x1="172" y1="264" x2="308" y2="264" stroke="#ffffff" stroke-width="14" stroke-linecap="round" opacity="0.45"/>
+  <line x1="172" y1="300" x2="268" y2="300" stroke="#ffffff" stroke-width="14" stroke-linecap="round" opacity="0.35"/>
+
+  <!-- AI Spark (Neo element) -->
+  <circle cx="356" cy="152" r="22" fill="#F472B6">
+    <animate attributeName="opacity" values="1;0.5;1" dur="2s" repeatCount="indefinite"/>
+  </circle>
+  <circle cx="356" cy="152" r="10" fill="#ffffff" opacity="0.9"/>
+</svg>

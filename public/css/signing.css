@@ -1,0 +1,984 @@
+/* ─── DocumentNeo Signing — signing.css ─────────────────────────────────── */
+/* Imports the shared app.css token system; no external requests              */
+
+/* ── Signing App Shell ───────────────────────────────────────────────────── */
+.signing-shell {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  grid-template-rows: 1fr;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── Signing Sidebar ─────────────────────────────────────────────────────── */
+.signing-sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.signing-sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  padding: 1rem 1rem .75rem;
+  border-bottom: 1px solid var(--border);
+}
+.signing-sidebar-logo-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.signing-sidebar-logo-text {
+  font-weight: 700;
+  font-size: .9rem;
+  color: var(--text);
+}
+
+.signing-back-btn {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  color: var(--text-3);
+  font-size: .8rem;
+  text-decoration: none;
+  padding: .5rem 1rem;
+  border-bottom: 1px solid var(--border);
+  transition: color var(--trans);
+}
+.signing-back-btn:hover { color: var(--text); text-decoration: none; }
+
+.signing-sidebar-section {
+  padding: .6rem .5rem .25rem;
+}
+.signing-sidebar-section-title {
+  font-size: .7rem;
+  font-weight: 600;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  padding: .1rem .5rem .3rem;
+}
+
+.signing-nav-item {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  padding: .45rem .65rem;
+  border-radius: var(--radius-sm);
+  color: var(--text-2);
+  font-size: .84rem;
+  cursor: pointer;
+  transition: background var(--trans), color var(--trans);
+  user-select: none;
+}
+.signing-nav-item:hover    { background: var(--surface2); color: var(--text); }
+.signing-nav-item.active   { background: var(--accent-glow); color: var(--primary); }
+.signing-nav-item svg      { flex-shrink: 0; opacity: .7; }
+.signing-nav-item.active svg { opacity: 1; }
+
+.signing-sidebar-footer {
+  margin-top: auto;
+  border-top: 1px solid var(--border);
+  padding: .75rem .5rem;
+}
+
+/* ── Main Content ───────────────────────────────────────────────────────── */
+.signing-main {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.signing-topbar {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .75rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+.signing-topbar h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#signing-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.signing-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+/* ── Envelope Cards ─────────────────────────────────────────────────────── */
+.envelope-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.envelope-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  transition: border-color var(--trans), box-shadow var(--trans);
+}
+.envelope-card:hover {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 1px var(--primary), var(--shadow);
+}
+.envelope-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: .75rem;
+  margin-bottom: .75rem;
+}
+.envelope-card-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: var(--accent-glow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--primary);
+}
+.envelope-card-title {
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.3;
+  flex: 1;
+  word-break: break-word;
+}
+.envelope-card-meta {
+  font-size: .75rem;
+  color: var(--text-3);
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem .7rem;
+  margin-top: .4rem;
+}
+.envelope-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: .75rem;
+  padding-top: .75rem;
+  border-top: 1px solid var(--border);
+}
+
+/* ── Status badges ──────────────────────────────────────────────────────── */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  font-size: .7rem;
+  font-weight: 600;
+  padding: .2rem .6rem;
+  border-radius: var(--radius-pill);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+.status-badge.draft             { background: var(--surface3); color: var(--text-2); }
+.status-badge.out_for_signature { background: #f59e0b22; color: var(--warn); }
+.status-badge.completed         { background: #22c55e22; color: var(--success); }
+.status-badge.voided            { background: var(--danger-dim); color: var(--danger); }
+
+.signing-progress {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  font-size: .75rem;
+  color: var(--text-3);
+}
+.signing-progress-dots {
+  display: flex;
+  gap: .2rem;
+}
+.signing-progress-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--surface3);
+}
+.signing-progress-dot.signed { background: var(--success); }
+
+/* ── Create Envelope Form ───────────────────────────────────────────────── */
+.create-envelope-form {
+  max-width: 680px;
+}
+.form-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+.form-section h3 {
+  font-size: .9rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+  margin-bottom: .85rem;
+}
+.form-row:last-child { margin-bottom: 0; }
+.form-row label {
+  font-size: .79rem;
+  font-weight: 500;
+  color: var(--text-2);
+}
+.form-row input,
+.form-row textarea,
+.form-row select {
+  background: var(--surface2);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-sm);
+  padding: .5rem .7rem;
+  color: var(--text);
+  font-size: .85rem;
+  font-family: inherit;
+  width: 100%;
+  transition: border-color var(--trans);
+}
+.form-row input:focus,
+.form-row textarea:focus,
+.form-row select:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+.form-row textarea { resize: vertical; min-height: 80px; }
+
+/* ── Signers list in form ───────────────────────────────────────────────── */
+.signer-list { display: flex; flex-direction: column; gap: .5rem; margin-bottom: .75rem; }
+.signer-row {
+  display: flex;
+  gap: .5rem;
+  align-items: center;
+}
+.signer-color-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.signer-row input {
+  flex: 1;
+  background: var(--surface2);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-sm);
+  padding: .4rem .6rem;
+  color: var(--text);
+  font-size: .82rem;
+  font-family: inherit;
+}
+.signer-row input:focus { outline: none; border-color: var(--primary); }
+.signer-remove-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-3);
+  padding: .2rem;
+  border-radius: 4px;
+  transition: color var(--trans);
+}
+.signer-remove-btn:hover { color: var(--danger); }
+
+/* ── Field Editor ─────────────────────────────────────────────────────────── */
+.field-editor {
+  display: grid;
+  grid-template-columns: 220px 1fr 220px;
+  height: calc(100vh - 52px);
+  overflow: hidden;
+}
+
+.field-palette {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: .75rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+.field-palette-title {
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: .25rem;
+}
+.palette-field-btn {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  padding: .6rem .75rem;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-2);
+  font-size: .82rem;
+  cursor: grab;
+  transition: background var(--trans), border-color var(--trans), color var(--trans);
+  user-select: none;
+}
+.palette-field-btn:hover { background: var(--surface3); color: var(--text); border-color: var(--border-mid); }
+.palette-field-btn:active { cursor: grabbing; }
+.palette-field-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .8rem;
+  flex-shrink: 0;
+}
+
+.signer-legend {
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  margin-top: .5rem;
+}
+.signer-legend-item {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .4rem .5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background var(--trans);
+  font-size: .8rem;
+  color: var(--text-2);
+}
+.signer-legend-item:hover { background: var(--surface2); }
+.signer-legend-item.selected { background: var(--surface3); color: var(--text); }
+.signer-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── PDF Canvas Area ─────────────────────────────────────────────────────── */
+.pdf-canvas-area {
+  overflow-y: auto;
+  overflow-x: auto;
+  background: var(--bg);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+.pdf-page-wrap {
+  position: relative;
+  box-shadow: 0 4px 24px rgba(0,0,0,.5);
+  background: #fff;
+  display: inline-block;
+}
+.pdf-page-wrap canvas {
+  display: block;
+}
+.pdf-page-wrap .field-overlay-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.pdf-page-wrap.drop-target { outline: 2px dashed var(--primary); }
+
+/* ── Field Overlay ───────────────────────────────────────────────────────── */
+.signing-field {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid;
+  border-radius: 4px;
+  cursor: move;
+  pointer-events: all;
+  overflow: hidden;
+  font-size: 10px;
+  font-weight: 500;
+  user-select: none;
+  transition: box-shadow .1s;
+  box-sizing: border-box;
+  gap: 4px;
+}
+.signing-field:hover { box-shadow: 0 0 0 2px #fff, 0 0 0 4px currentColor; }
+.signing-field.selected { box-shadow: 0 0 0 2px #fff, 0 0 0 4px currentColor; }
+.signing-field-label {
+  max-width: 90%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 9px;
+}
+.signing-field-resize {
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  width: 10px;
+  height: 10px;
+  cursor: se-resize;
+  opacity: .6;
+  font-size: 9px;
+}
+
+/* ── Fields panel (right) ─────────────────────────────────────────────────── */
+.fields-panel {
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  padding: .75rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+}
+.fields-panel-title {
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.field-item {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: .5rem .65rem;
+  font-size: .8rem;
+  color: var(--text-2);
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  cursor: pointer;
+  transition: background var(--trans);
+}
+.field-item:hover { background: var(--surface3); }
+.field-item-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.field-item-type { font-size: .7rem; text-transform: uppercase; letter-spacing: .05em; flex: 1; }
+.field-item-del {
+  background: none;
+  border: none;
+  color: var(--text-3);
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: .75rem;
+  transition: color var(--trans);
+}
+.field-item-del:hover { color: var(--danger); }
+
+/* ── Envelope Detail ─────────────────────────────────────────────────────── */
+.envelope-detail {
+  max-width: 760px;
+}
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin-bottom: 1.5rem;
+}
+.detail-header h2 { flex: 1; font-size: 1.3rem; }
+
+.signers-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .84rem;
+}
+.signers-table th {
+  text-align: left;
+  color: var(--text-3);
+  font-size: .72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  padding: .4rem .7rem;
+  border-bottom: 1px solid var(--border);
+}
+.signers-table td {
+  padding: .6rem .7rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-2);
+  vertical-align: middle;
+}
+.signers-table tr:last-child td { border-bottom: none; }
+
+/* ── Signing URL box ─────────────────────────────────────────────────────── */
+.signing-url-box {
+  background: var(--surface2);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-sm);
+  padding: .5rem .75rem;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .78rem;
+}
+.signing-url-box code {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--primary);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .75rem;
+}
+
+/* ── Audit trail ─────────────────────────────────────────────────────────── */
+.audit-event {
+  display: flex;
+  gap: .75rem;
+  align-items: flex-start;
+  padding: .5rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: .8rem;
+}
+.audit-event:last-child { border-bottom: none; }
+.audit-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary);
+  margin-top: .3rem;
+  flex-shrink: 0;
+}
+.audit-action {
+  font-weight: 600;
+  color: var(--text);
+  text-transform: capitalize;
+}
+.audit-time { color: var(--text-3); font-size: .73rem; }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   SIGNER / PUBLIC PAGE  (sign.html)
+   ───────────────────────────────────────────────────────────────────────── */
+.sign-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.sign-header {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .75rem 1.25rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.sign-header-logo {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-weight: 700;
+  font-size: .9rem;
+  color: var(--text);
+}
+.sign-header-logo-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sign-header-title {
+  flex: 1;
+  text-align: center;
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sign-header-actions { display: flex; gap: .5rem; align-items: center; }
+
+/* Steps indicator */
+.sign-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  padding: .6rem 1rem;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+.sign-step {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  font-size: .78rem;
+  color: var(--text-3);
+}
+.sign-step.active { color: var(--primary); }
+.sign-step.done   { color: var(--success); }
+.sign-step-num {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--surface3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .7rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.sign-step.active .sign-step-num { background: var(--primary); color: #fff; }
+.sign-step.done   .sign-step-num { background: var(--success); color: #fff; }
+.sign-step-connector { width: 24px; height: 1px; background: var(--border-mid); }
+
+/* Sign body layout */
+.sign-body {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  flex: 1;
+  overflow: hidden;
+}
+
+.sign-pdf-area {
+  overflow-y: auto;
+  overflow-x: auto;
+  background: var(--bg);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.sign-panel {
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.sign-panel-header {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.sign-panel-header h3 { font-size: .9rem; font-weight: 600; margin-bottom: .25rem; }
+.sign-panel-header p  { font-size: .8rem; color: var(--text-2); }
+
+.sign-fields-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: .75rem;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+.sign-field-item {
+  padding: .65rem .8rem;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  transition: background var(--trans), border-color var(--trans);
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+.sign-field-item:hover     { background: var(--surface2); border-color: var(--border-mid); }
+.sign-field-item.current   { background: var(--accent-glow); border-color: var(--primary); }
+.sign-field-item.completed { background: #22c55e0e; border-color: var(--success); }
+.sign-field-type {
+  font-size: .7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  flex: 1;
+}
+.sign-field-page { font-size: .7rem; color: var(--text-3); }
+
+.sign-panel-footer {
+  padding: .75rem;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+/* ── Signature input on PDF ──────────────────────────────────────────────── */
+.sign-field-overlay {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed;
+  border-radius: 4px;
+  opacity: .8;
+  cursor: pointer;
+  overflow: hidden;
+  transition: opacity var(--trans), box-shadow var(--trans);
+  box-sizing: border-box;
+}
+.sign-field-overlay:hover { opacity: 1; box-shadow: 0 0 0 2px #fff4, 0 0 0 4px currentColor; }
+.sign-field-overlay.done  { border-style: solid; opacity: 1; }
+.sign-field-overlay.current { border-style: solid; opacity: 1; box-shadow: 0 0 0 2px #fff4, 0 0 0 4px currentColor; }
+.sign-field-placeholder {
+  font-size: 9px;
+  font-weight: 600;
+  text-align: center;
+  color: inherit;
+  pointer-events: none;
+  text-transform: uppercase;
+}
+.sign-field-img { width: 100%; height: 100%; object-fit: contain; }
+.sign-field-text-val {
+  font-size: 10px;
+  color: #222;
+  padding: 0 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Signature modal ─────────────────────────────────────────────────────── */
+.sig-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9000;
+  padding: 1rem;
+}
+.sig-modal {
+  background: var(--surface);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  max-width: 540px;
+  width: 100%;
+  box-shadow: var(--shadow);
+}
+.sig-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.sig-modal-header h3 { font-size: 1rem; font-weight: 600; }
+.sig-modal-tabs {
+  display: flex;
+  gap: .25rem;
+  margin-bottom: 1rem;
+  background: var(--surface2);
+  border-radius: var(--radius-sm);
+  padding: .2rem;
+}
+.sig-modal-tab {
+  flex: 1;
+  text-align: center;
+  font-size: .8rem;
+  padding: .35rem;
+  border-radius: 7px;
+  cursor: pointer;
+  color: var(--text-2);
+  transition: background var(--trans), color var(--trans);
+}
+.sig-modal-tab.active { background: var(--surface); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,.2); }
+
+#sig-canvas-wrap {
+  position: relative;
+  border: 1.5px solid var(--border-mid);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  overflow: hidden;
+  margin-bottom: .75rem;
+}
+#sig-canvas { display: block; cursor: crosshair; touch-action: none; }
+#sig-canvas-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #bbb;
+  font-size: .85rem;
+  pointer-events: none;
+  transition: opacity var(--trans);
+}
+
+.sig-type-input {
+  width: 100%;
+  font-family: 'Brush Script MT', 'Dancing Script', cursive;
+  font-size: 2rem;
+  text-align: center;
+  background: var(--surface2);
+  border: 1.5px solid var(--border-mid);
+  border-radius: var(--radius-sm);
+  padding: .75rem;
+  color: #1a1a2e;
+  margin-bottom: .75rem;
+}
+.sig-type-input:focus { outline: none; border-color: var(--primary); }
+
+.sig-modal-actions { display: flex; gap: .5rem; justify-content: flex-end; }
+
+/* ── Completion screen ──────────────────────────────────────────────────── */
+.sign-complete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 2rem;
+}
+.sign-complete-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2.5rem;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+}
+.sign-complete-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #22c55e22;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+  color: var(--success);
+}
+.sign-complete-card h2 {
+  font-size: 1.4rem;
+  margin-bottom: .5rem;
+  color: var(--text);
+}
+.sign-complete-card p {
+  color: var(--text-2);
+  font-size: .88rem;
+  line-height: 1.6;
+}
+
+/* ── Empty state ─────────────────────────────────────────────────────────── */
+.signing-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .75rem;
+  color: var(--text-3);
+  padding: 3rem 1rem;
+  text-align: center;
+}
+.signing-empty svg { opacity: .4; }
+.signing-empty h3  { font-size: 1rem; font-weight: 600; color: var(--text-2); }
+.signing-empty p   { font-size: .84rem; }
+
+/* ── Shared button styles (extend app.css) ──────────────────────────────── */
+.btn { display: inline-flex; align-items: center; gap: .4rem; padding: .45rem .9rem;
+  border: 1px solid transparent; border-radius: var(--radius-sm); font-size: .84rem;
+  font-weight: 500; cursor: pointer; transition: background var(--trans), color var(--trans),
+  border-color var(--trans); font-family: inherit; text-decoration: none; }
+.btn:hover { text-decoration: none; }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-h); }
+.btn-ghost   { background: transparent; border-color: var(--border-mid); color: var(--text-2); }
+.btn-ghost:hover { background: var(--surface2); color: var(--text); }
+.btn-danger  { background: var(--danger-dim); border-color: var(--danger); color: var(--danger); }
+.btn-danger:hover { background: var(--danger); color: #fff; }
+.btn-sm      { padding: .3rem .65rem; font-size: .78rem; }
+.btn-lg      { padding: .65rem 1.4rem; font-size: .95rem; }
+.icon-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; background: none; border: 1px solid var(--border-mid);
+  border-radius: var(--radius-sm); color: var(--text-2); cursor: pointer;
+  transition: background var(--trans), color var(--trans); font-size: .9rem; }
+.icon-btn:hover { background: var(--surface2); color: var(--text); }
+
+/* ── Toggle row (shared with app.css pattern) ────────────────────────────── */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .45rem 0;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .signing-shell { grid-template-columns: 1fr; }
+  .signing-sidebar { display: none; }
+  .field-editor { grid-template-columns: 1fr; }
+  .field-palette, .fields-panel { display: none; }
+  .sign-body { grid-template-columns: 1fr; }
+  .sign-panel { display: none; }
+}
+
+@media (max-width: 600px) {
+  .signing-content { padding: .85rem; }
+  .envelope-grid { grid-template-columns: 1fr; }
+  .signing-topbar { padding: .6rem .85rem; gap: .4rem; }
+  .signing-topbar h2 { font-size: .9rem; }
+  #signing-topbar-actions .btn { font-size: .75rem; padding: .3rem .55rem; }
+  .sign-header { padding: .6rem .85rem; }
+  .sign-complete-card { padding: 1.5rem 1rem; margin: 1rem; }
+  .signers-table th, .signers-table td { padding: .4rem .5rem; font-size: .77rem; }
+  .detail-header h2 { font-size: 1rem; }
+  .form-section { padding: 1rem; }
+  .signer-row { flex-wrap: wrap; gap: .35rem; }
+  .signer-row input { min-width: 120px; }
+}
+
+/* ── Spinner ──────────────────────────────────────────────────────────────── */
+.spinner {
+  width: 20px; height: 20px;
+  border: 2px solid var(--border-mid);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin .6s linear infinite;
+  display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Doc picker dropdown ─────────────────────────────────────────────────── */
+.doc-picker-item:hover,
+.doc-picker-item.dp-active {
+  background: var(--primary-10, rgba(99,102,241,.1));
+  color: var(--primary, #6366f1);
+}

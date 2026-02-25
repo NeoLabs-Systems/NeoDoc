@@ -1,0 +1,36 @@
+services:
+  documentneo:
+    build: .
+    # image: ghcr.io/neooriginal/documentneo:latest   # ← uncomment to pull pre-built image instead
+    container_name: documentneo
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:${PORT:-3000}"
+    volumes:
+      - docneo_data:/app/data
+      - ${WATCH_FOLDER:-./data/inbox}:/app/inbox   # host path → /app/inbox in container
+    environment:
+      NODE_ENV: production
+      PORT: ${PORT:-3000}
+      # ── Required ──────────────────────────────────────
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-24h}
+      DB_PATH: /app/data/vault.db
+      # ── Optional: AI features ─────────────────────────
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      # ── App config ────────────────────────────────────
+      APP_NAME: ${APP_NAME:-DocumentNeo}
+      MAX_FILE_MB: ${MAX_FILE_MB:-50}
+      REGISTRATION_OPEN: ${REGISTRATION_OPEN:-true}
+      WATCH_ENABLED: ${WATCH_ENABLED:-false}
+      WATCH_FOLDER: /app/inbox    # always the container-internal path
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:${PORT:-3000}/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+volumes:
+  docneo_data:

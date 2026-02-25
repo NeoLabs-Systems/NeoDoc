@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Document — DocumentNeo</title>
+  <link rel="icon" type="image/svg+xml" href="/icon.svg">
+  <script src="/js/theme-init.js"></script>
+  <link rel="stylesheet" href="/css/app.css">
+  <link rel="stylesheet" href="/css/signing.css">
+</head>
+<body>
+
+<div class="sign-shell" id="sign-shell">
+
+  <!-- Header -->
+  <div class="sign-header">
+    <div class="sign-header-logo">
+      <div class="sign-header-logo-icon">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5">
+          <polyline points="9 11 12 14 22 4"/>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+        </svg>
+      </div>
+      <span>DocumentNeo</span>
+    </div>
+    <div class="sign-header-title" id="sign-doc-title">Loading…</div>
+    <div class="sign-header-actions" id="sign-header-actions"></div>
+  </div>
+
+  <!-- Steps -->
+  <div class="sign-steps" id="sign-steps" style="display:none">
+    <div class="sign-step active" id="step-review">
+      <div class="sign-step-num">1</div>
+      Review Document
+    </div>
+    <div class="sign-step-connector"></div>
+    <div class="sign-step" id="step-sign">
+      <div class="sign-step-num">2</div>
+      Fill &amp; Sign Fields
+    </div>
+    <div class="sign-step-connector"></div>
+    <div class="sign-step" id="step-done">
+      <div class="sign-step-num">3</div>
+      Complete
+    </div>
+  </div>
+
+  <!-- Body (PDF + panel) -->
+  <div class="sign-body" id="sign-body">
+
+    <!-- PDF Viewer Area -->
+    <div class="sign-pdf-area" id="sign-pdf-area">
+      <div class="signing-empty" id="sign-loading">
+        <div class="spinner" style="width:32px;height:32px;border-width:3px"></div>
+        <p>Loading document…</p>
+      </div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="sign-panel" id="sign-panel" style="display:none">
+      <div class="sign-panel-header">
+        <h3 id="panel-signer-name">–</h3>
+        <p id="panel-signer-email"></p>
+      </div>
+      <div class="sign-fields-list" id="sign-fields-list"></div>
+      <div class="sign-panel-footer">
+        <button class="btn btn-primary" id="sign-submit-btn" style="width:100%;justify-content:center" disabled>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Complete Signing
+        </button>
+        <div id="panel-progress-text" style="text-align:center;font-size:.75rem;color:var(--text-3);margin-top:.4rem"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Signature Modal -->
+<div class="sig-modal-overlay" id="sig-modal-overlay" style="display:none">
+  <div class="sig-modal">
+    <div class="sig-modal-header">
+      <h3 id="sig-modal-title">Sign Here</h3>
+      <button class="icon-btn" id="sig-modal-close">✕</button>
+    </div>
+    <div class="sig-modal-tabs" id="sig-modal-tabs">
+      <div class="sig-modal-tab active" data-tab="draw">Draw</div>
+      <div class="sig-modal-tab" data-tab="type">Type</div>
+    </div>
+
+    <!-- Draw tab -->
+    <div id="sig-tab-draw">
+      <div id="sig-canvas-wrap">
+        <canvas id="sig-canvas" width="488" height="160"></canvas>
+        <div id="sig-canvas-placeholder">Draw your signature here</div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:.5rem">
+        <button class="btn btn-ghost btn-sm" id="sig-clear-btn">Clear</button>
+      </div>
+    </div>
+
+    <!-- Type tab -->
+    <div id="sig-tab-type" style="display:none">
+      <input class="sig-type-input" id="sig-type-input" type="text" placeholder="Type your name" maxlength="80" autocomplete="off">
+      <div style="display:flex;gap:.4rem;margin-bottom:.5rem;flex-wrap:wrap" id="sig-font-picker"></div>
+    </div>
+
+    <div class="sig-modal-actions">
+      <button class="btn btn-ghost" id="sig-cancel-btn">Cancel</button>
+      <button class="btn btn-primary" id="sig-apply-btn">Apply</button>
+    </div>
+  </div>
+</div>
+
+<!-- Text Input Modal -->
+<div class="sig-modal-overlay" id="text-modal-overlay" style="display:none">
+  <div class="sig-modal" style="max-width:420px">
+    <div class="sig-modal-header">
+      <h3 id="text-modal-title">Enter Text</h3>
+      <button class="icon-btn" id="text-modal-close">✕</button>
+    </div>
+    <div style="margin-bottom:1rem">
+      <input type="text" id="text-modal-input" style="width:100%;background:var(--surface2);border:1px solid var(--border-mid);border-radius:var(--radius-sm);padding:.55rem .75rem;color:var(--text);font-size:.9rem;font-family:inherit" placeholder="Enter value…" maxlength="500">
+    </div>
+    <div class="sig-modal-actions">
+      <button class="btn btn-ghost" id="text-modal-cancel">Cancel</button>
+      <button class="btn btn-primary" id="text-modal-apply">Apply</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script type="module" src="/js/sign.js"></script>
+</body>
+</html>

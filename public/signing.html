@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>DocumentNeo — Signing</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#6366f1">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="icon" type="image/svg+xml" href="/icon.svg">
+  <script src="/js/theme-init.js"></script>
+  <link rel="stylesheet" href="/css/app.css">
+  <link rel="stylesheet" href="/css/signing.css">
+</head>
+<body>
+
+<div class="signing-shell" id="signing-shell">
+
+  <!-- ── Sidebar ─────────────────────────────────────────────── -->
+  <aside class="signing-sidebar">
+    <div class="signing-sidebar-logo">
+      <div class="signing-sidebar-logo-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22a9.97 9.97 0 0 0 7.07-2.93"/>
+          <path d="M12 22a9.97 9.97 0 0 1-7.07-2.93"/>
+          <path d="M2 12C2 6.48 6.48 2 12 2s10 4.48 10 10"/>
+          <polyline points="9 11 12 14 22 4"/>
+        </svg>
+      </div>
+      <span class="signing-sidebar-logo-text">Signing</span>
+    </div>
+
+    <a class="signing-back-btn" href="/">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to Documents
+    </a>
+
+    <div class="signing-sidebar-section">
+      <div class="signing-nav-item active" id="nav-envelopes" data-view="envelopes">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/>
+          <polyline points="13 2 13 9 20 9"/>
+          <polyline points="9 15 11 17 15 13"/>
+        </svg>
+        My Envelopes
+        <span id="envelope-count-badge" style="margin-left:auto;background:var(--surface3);color:var(--text-2);font-size:.68rem;padding:.05rem .45rem;border-radius:99px">0</span>
+      </div>
+      <div class="signing-nav-item" id="nav-new-envelope" data-view="new">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New Envelope
+      </div>
+    </div>
+
+    <div class="signing-sidebar-footer">
+      <div class="signing-nav-item" id="nav-settings">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+        Settings
+      </div>
+      <div class="signing-nav-item" id="signout-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Main ──────────────────────────────────────────────────── -->
+  <div class="signing-main">
+    <div class="signing-topbar">
+      <h2 id="signing-page-title">My Envelopes</h2>
+      <div id="signing-topbar-actions"></div>
+    </div>
+    <div class="signing-content" id="signing-content">
+      <div class="signing-empty">
+        <div class="spinner"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Settings Modal (shared with main app) ───────────────────────── -->
+<div class="modal-overlay" id="settings-overlay" style="display:none">
+  <div class="settings-modal">
+    <div class="settings-header">
+      <h2>Settings</h2>
+      <button class="icon-btn" id="settings-close">✕</button>
+    </div>
+    <div class="settings-body">
+      <div class="settings-tabs" id="settings-tab-list">
+        <button class="stab active" data-stab="ai">AI</button>
+        <button class="stab" data-stab="mcp">MCP / API</button>
+        <button class="stab" data-stab="security">Security</button>
+      </div>
+      <div class="settings-content" id="settings-content"><!-- Populated by JS --></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Toast container ─────────────────────────────────────────────── -->
+<div id="toast-container"></div>
+<div id="modal-root"></div>
+
+<script type="module" src="/js/signing-app.js"></script>
+</body>
+</html>

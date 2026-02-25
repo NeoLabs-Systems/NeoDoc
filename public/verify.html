@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Document Verification — DocumentNeo</title>
+  <style>
+    :root {
+      --indigo: #6366f1;
+      --indigo-dark: #4f46e5;
+      --green: #22c55e;
+      --amber: #f59e0b;
+      --red: #ef4444;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-400: #9ca3af;
+      --gray-600: #4b5563;
+      --gray-900: #111827;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-900);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    header {
+      width: 100%;
+      background: var(--indigo);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    header .logo { font-size: 26px; }
+    header h1 { color: #fff; font-size: 18px; font-weight: 600; }
+    header a { color: rgba(255,255,255,0.7); font-size: 13px; text-decoration: none; margin-left: auto; }
+    header a:hover { color: #fff; }
+
+    .container { width: 100%; max-width: 680px; padding: 32px 16px; }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--gray-100);
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+    .status-icon {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .status-icon.completed  { background: #dcfce7; }
+    .status-icon.voided     { background: #fee2e2; }
+    .status-icon.draft      { background: var(--gray-100); }
+    .status-icon.pending    { background: #fef3c7; }
+
+    .card-header-text h2 { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+    .badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .badge.completed  { background: #dcfce7; color: #166534; }
+    .badge.voided     { background: #fee2e2; color: #991b1b; }
+    .badge.out_for_signature { background: #fef3c7; color: #92400e; }
+    .badge.draft      { background: var(--gray-100); color: var(--gray-600); }
+
+    .card-body { padding: 24px; display: flex; flex-direction: column; gap: 24px; }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .meta-item { display: flex; flex-direction: column; gap: 3px; }
+    .meta-label { font-size: 11px; font-weight: 600; text-transform: uppercase;
+                  letter-spacing: .06em; color: var(--gray-400); }
+    .meta-value { font-size: 14px; color: var(--gray-600); }
+
+    .section-title {
+      font-size: 13px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .06em; color: var(--gray-400); margin-bottom: 10px;
+    }
+    .signers-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    .signers-table th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--gray-400);
+      padding: 0 10px 8px;
+    }
+    .signers-table td { padding: 8px 10px; border-top: 1px solid var(--gray-100); }
+    .signer-name { font-weight: 500; }
+    .signer-signed { color: #166534; font-weight: 500; font-size: 13px; }
+    .signer-pending { color: #92400e; font-size: 13px; }
+
+    .fingerprint-box {
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .fingerprint-label {
+      font-size: 12px; font-weight: 600; color: var(--gray-600); margin-bottom: 8px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .fingerprint-label svg { color: var(--indigo); }
+    .hash-value {
+      font-family: "SFMono-Regular", "Consolas", "Liberation Mono", monospace;
+      font-size: 12px;
+      word-break: break-all;
+      color: var(--gray-600);
+      background: #fff;
+      border: 1px solid var(--gray-200);
+      border-radius: 6px;
+      padding: 10px 12px;
+      position: relative;
+    }
+    .copy-btn {
+      position: absolute;
+      right: 8px; top: 50%;
+      transform: translateY(-50%);
+      background: var(--gray-100);
+      border: none; border-radius: 4px;
+      padding: 4px 8px; cursor: pointer;
+      font-size: 11px; color: var(--gray-600);
+      transition: background .15s;
+    }
+    .copy-btn:hover { background: var(--gray-200); }
+    .copy-btn.copied { background: #dcfce7; color: #166534; }
+    .hash-value-text { padding-right: 60px; display: block; }
+
+    .verify-howto {
+      background: #eef2ff;
+      border: 1px solid #c7d2fe;
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-size: 13px;
+      color: #3730a3;
+      line-height: 1.5;
+    }
+    .verify-howto code {
+      font-family: monospace;
+      background: #fff;
+      border-radius: 4px;
+      padding: 0 4px;
+      font-size: 12px;
+    }
+
+    .not-found {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--gray-600);
+    }
+    .not-found .icon { font-size: 44px; margin-bottom: 16px; }
+    .not-found h2 { margin-bottom: 8px; }
+
+    .search-box {
+      background: #fff;
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .search-box label { display: block; font-size: 13px; font-weight: 600;
+                        margin-bottom: 8px; color: var(--gray-600); }
+    .search-row { display: flex; gap: 8px; }
+    .search-row input {
+      flex: 1;
+      border: 1px solid var(--gray-200);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-size: 14px;
+      color: var(--gray-900);
+      outline: none;
+      transition: border-color .15s;
+    }
+    .search-row input:focus { border-color: var(--indigo); }
+    .search-row button, .btn {
+      background: var(--indigo);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 18px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .search-row button:hover, .btn:hover { background: var(--indigo-dark); }
+
+    .loading { text-align: center; padding: 48px; color: var(--gray-400); font-size: 15px; }
+    .spinner {
+      display: inline-block; width: 28px; height: 28px;
+      border: 3px solid var(--gray-200);
+      border-top-color: var(--indigo);
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+      margin-bottom: 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">🗂️</div>
+    <h1>DocumentNeo</h1>
+    <a href="/">Back to vault</a>
+  </header>
+
+  <div class="container">
+    <div class="search-box" id="searchBox">
+      <label>Verify a signed document by Envelope ID</label>
+      <div class="search-row">
+        <input type="text" id="envIdInput" placeholder="Paste the Envelope ID from the signing certificate…" autocomplete="off">
+        <button onclick="lookupEnvelope()">Verify</button>
+      </div>
+    </div>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const STATUS_ICON = {
+      completed:         '✅',
+      voided:            '🚫',
+      draft:             '📝',
+      out_for_signature: '⏳',
+    };
+
+    function fmtDate(iso) {
+      if (!iso) return '—';
+      return new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+    }
+
+    function renderEnvelope(data) {
+      const statusLabel = {
+        completed: 'Completed',
+        voided: 'Voided',
+        draft: 'Draft',
+        out_for_signature: 'Out for signature',
+      }[data.status] || data.status;
+
+      const signersHtml = (data.signers || []).map(s => `
+        <tr>
+          <td><span class="signer-name">${escHtml(s.name)}</span></td>
+          <td>${s.status === 'signed'
+            ? `<span class="signer-signed">✓ Signed</span>`
+            : `<span class="signer-pending">${s.status}</span>`}</td>
+          <td class="meta-value">${fmtDate(s.signed_at)}</td>
+        </tr>
+      `).join('');
+
+      const hashSection = data.doc_hash ? `
+        <div>
+          <div class="section-title">Document fingerprint (SHA-256)</div>
+          <div class="fingerprint-box">
+            <div class="fingerprint-label">
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.955...
+                     M9 3.75c.273-.09.555-.16.84-.213" />
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+              </svg>
+              SHA-256 of the signed PDF
+            </div>
+            <div class="hash-value">
+              <span class="hash-value-text" id="hashText">${escHtml(data.doc_hash)}</span>
+              <button class="copy-btn" id="copyBtn" onclick="copyHash()">Copy</button>
+            </div>
+          </div>
+          <div class="verify-howto" style="margin-top:10px">
+            To independently verify, download the signed PDF and run:<br>
+            <code>shasum -a 256 signed-document.pdf</code> (macOS/Linux)&nbsp; or<br>
+            <code>certutil -hashfile signed-document.pdf SHA256</code> (Windows)<br>
+            The output should match the fingerprint above exactly.
+          </div>
+        </div>
+      ` : '';
+
+      return `
+        <div class="card">
+          <div class="card-header">
+            <div class="status-icon ${data.status}">${STATUS_ICON[data.status] || '📄'}</div>
+            <div class="card-header-text">
+              <h2>${escHtml(data.title)}</h2>
+              <span class="badge ${data.status}">${statusLabel}</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div>
+              <div class="section-title">Envelope details</div>
+              <div class="meta-grid">
+                <div class="meta-item">
+                  <span class="meta-label">Envelope ID</span>
+                  <span class="meta-value" style="font-size:12px;font-family:monospace;word-break:break-all">${escHtml(data.id)}</span>
+                </div>
+                <div class="meta-item">
+                  <span class="meta-label">Created</span>
+                  <span class="meta-value">${fmtDate(data.created_at)}</span>
+                </div>
+                ${data.completed_at ? `
+                <div class="meta-item">
+                  <span class="meta-label">Completed</span>
+                  <span class="meta-value">${fmtDate(data.completed_at)}</span>
+                </div>` : ''}
+              </div>
+            </div>
+            <div>
+              <div class="section-title">Signers</div>
+              <table class="signers-table">
+                <thead><tr>
+                  <th>Name</th><th>Status</th><th>Signed at</th>
+                </tr></thead>
+                <tbody>${signersHtml}</tbody>
+              </table>
+            </div>
+            ${hashSection}
+          </div>
+        </div>
+      `;
+    }
+
+    function escHtml(s) {
+      return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    async function lookupEnvelope() {
+      const id = document.getElementById('envIdInput').value.trim();
+      if (!id) return;
+      const el = document.getElementById('result');
+      el.innerHTML = `<div class="loading"><div class="spinner"></div><br>Verifying…</div>`;
+
+      try {
+        const r = await fetch(`/api/signing/verify/${encodeURIComponent(id)}`);
+        if (r.status === 404) {
+          el.innerHTML = `<div class="not-found">
+            <div class="icon">🔍</div>
+            <h2>Envelope not found</h2>
+            <p>No signing envelope was found with that ID.</p>
+          </div>`;
+          return;
+        }
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        const data = await r.json();
+        el.innerHTML = renderEnvelope(data);
+      } catch (e) {
+        el.innerHTML = `<div class="not-found">
+          <div class="icon">⚠️</div>
+          <h2>Error</h2>
+          <p>${escHtml(e.message)}</p>
+        </div>`;
+      }
+    }
+
+    function copyHash() {
+      const hash = document.getElementById('hashText').textContent;
+      navigator.clipboard.writeText(hash).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+      });
+    }
+
+    // Auto-load from URL param ?id=
+    const params = new URLSearchParams(location.search);
+    const urlId  = params.get('id');
+    if (urlId) {
+      document.getElementById('envIdInput').value = urlId;
+      lookupEnvelope();
+    }
+
+    // Allow Enter key in input
+    document.getElementById('envIdInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') lookupEnvelope();
+    });
+  </script>
+</body>
+</html>
