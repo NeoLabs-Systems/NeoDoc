@@ -940,28 +940,160 @@
   padding: .45rem 0;
 }
 
+/* Mobile-only elements — hidden on desktop */
+.sign-panel-mob-bar  { display: none; }
+
 /* ── Responsive ──────────────────────────────────────────────────────────── */
+
+/* ── Tablet / narrow desktop ─────────────────────────────────────────────── */
 @media (max-width: 900px) {
+  /* Manager shell: hide sidebar */
   .signing-shell { grid-template-columns: 1fr; }
   .signing-sidebar { display: none; }
-  .field-editor { grid-template-columns: 1fr; }
+
+  /* Field editor: only pdf canvas, hide side palettes */
+  .field-editor { grid-template-columns: 1fr; grid-template-rows: 1fr; }
   .field-palette, .fields-panel { display: none; }
-  .sign-body { grid-template-columns: 1fr; }
-  .sign-panel { display: none; }
+
+  /* ── Public signer page ── */
+
+  /* Body becomes a flex column: PDF fills space, panel anchors at bottom */
+  .sign-body {
+    flex: 1;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  /* PDF fills all available room and is scrollable */
+  .sign-pdf-area {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: .5rem .375rem 1rem;
+    /* centre pages that are narrower than the viewport */
+    align-items: center;
+  }
+
+  /* Pages themselves: never wider than the viewport */
+  .pdf-page-wrap {
+    max-width: 100%;
+  }
+  .pdf-page-wrap canvas {
+    max-width: 100%;
+    height: auto !important;
+  }
+
+  /* ── Bottom-sheet signing panel ─────────────────────────────────────────── */
+  .sign-panel {
+    /* always visible on mobile — JS sets display:flex inline, CSS never hides it */
+    flex-shrink: 0;
+    flex-direction: column !important;
+    border-left: none !important;
+    border-top: 2px solid var(--border);
+    background: var(--surface);
+    overflow: hidden;
+  }
+
+  /* Field list hidden when collapsed, visible when expanded */
+  .sign-panel:not(.mob-expanded) .sign-fields-list { display: none !important; }
+  .sign-panel.mob-expanded .sign-fields-list {
+    display: flex !important;
+    flex-direction: column;
+    max-height: 42vh;
+    overflow-y: auto;
+  }
+
+  /* Drag handle pill at top of panel */
+  .sign-panel-mob-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: .35rem .85rem .2rem;
+    cursor: pointer;
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .sign-panel-mob-handle {
+    width: 40px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border-mid);
+    margin-bottom: .35rem;
+  }
+  .sign-panel-mob-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: .5rem;
+  }
+  .sign-panel-mob-progress {
+    font-size: .78rem;
+    color: var(--text-3);
+    flex: 1;
+  }
+  .sign-panel-mob-chevron {
+    color: var(--text-3);
+    transition: transform .25s ease;
+    flex-shrink: 0;
+  }
+
+  /* Field list scrollable once expanded */
+  .sign-panel-header { display: none; }
+  .sign-fields-list  {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: .4rem .75rem .5rem;
+  }
+
+  /* Always-visible footer: complete button */
+  .sign-panel-footer {
+    padding: .6rem .85rem .75rem;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+    background: var(--surface);
+  }
+
+  /* Steps bar: smaller on mobile */
+  .sign-steps { padding: .4rem .75rem; gap: .3rem; }
+  .sign-step   { font-size: .72rem; gap: .25rem; }
+  .sign-step-num { width: 18px; height: 18px; font-size: .65rem; }
+  .sign-step-connector { width: 16px; }
 }
 
+/* ── Phone ───────────────────────────────────────────────────────────────── */
 @media (max-width: 600px) {
-  .signing-content { padding: .85rem; }
+  .signing-content { padding: .75rem; }
   .envelope-grid { grid-template-columns: 1fr; }
-  .signing-topbar { padding: .6rem .85rem; gap: .4rem; }
-  .signing-topbar h2 { font-size: .9rem; }
-  #signing-topbar-actions .btn { font-size: .75rem; padding: .3rem .55rem; }
-  .sign-header { padding: .6rem .85rem; }
+  .signing-topbar { padding: .55rem .75rem; gap: .35rem; }
+  .signing-topbar h2 { font-size: .88rem; }
+  #signing-topbar-actions .btn { font-size: .74rem; padding: .28rem .5rem; }
+
+  .sign-header { padding: .55rem .75rem; }
+  .sign-header-logo span { display: none; } /* hide wordmark to save space */
+  .sign-header-title { font-size: .85rem; }
+
+  .sign-pdf-area { padding: .35rem .2rem .75rem; }
+
+  /* Signature / text modals: full-width on phones */
+  .sig-modal-overlay { align-items: flex-end; padding: 0; }
+  .sig-modal {
+    border-radius: var(--radius) var(--radius) 0 0;
+    max-width: 100%;
+    padding: 1.25rem 1rem 1.5rem;
+  }
+  #sig-canvas { width: 100% !important; height: 140px !important; }
+  #sig-canvas-wrap { max-height: 140px; }
+
   .sign-complete-card { padding: 1.5rem 1rem; margin: 1rem; }
-  .signers-table th, .signers-table td { padding: .4rem .5rem; font-size: .77rem; }
-  .detail-header h2 { font-size: 1rem; }
-  .form-section { padding: 1rem; }
-  .signer-row { flex-wrap: wrap; gap: .35rem; }
+  .signers-table th, .signers-table td { padding: .35rem .45rem; font-size: .76rem; }
+  .detail-header h2 { font-size: .95rem; }
+  .form-section { padding: .9rem; }
+  .signer-row { flex-wrap: wrap; gap: .3rem; }
   .signer-row input { min-width: 120px; }
 }
 

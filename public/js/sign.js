@@ -107,6 +107,8 @@ async function init() {
 
   // Submit handler
   document.getElementById('sign-submit-btn').onclick = submitSigning;
+  const mobSubmitEl = document.getElementById('mob-submit-btn');
+  if (mobSubmitEl) mobSubmitEl.onclick = submitSigning;
   checkProgress();
 }
 
@@ -177,9 +179,24 @@ async function loadPdf() {
     area.innerHTML = '';
     State.pageWraps = [];
 
+    // Compute a responsive scale so the PDF never overflows on mobile
+    const pdfAreaEl = document.getElementById('sign-pdf-area');
+    function getScale(nativeWidth) {
+      const availW = pdfAreaEl.clientWidth - 24; // 12px padding each side
+      const ideal  = Math.min(1.4, availW / nativeWidth);
+      return Math.max(0.5, ideal);
+    }
+    // Re-render on resize (only on first call to avoid duplicating observers)
+    if (!State._resizeObserver) {
+      State._resizeObserver = new ResizeObserver(() => { if (State.pdfDoc) rerenderPdf(); });
+      State._resizeObserver.observe(pdfAreaEl);
+    }
+
     for (let i = 1; i <= State.pdfDoc.numPages; i++) {
-      const page     = await State.pdfDoc.getPage(i);
-      const viewport = page.getViewport({ scale: 1.4 });
+      const page         = await State.pdfDoc.getPage(i);
+      const baseViewport = page.getViewport({ scale: 1 });
+      const scale        = getScale(baseViewport.width);
+      const viewport     = page.getViewport({ scale });
 
       const wrap   = document.createElement('div');
       wrap.className = 'pdf-page-wrap';
@@ -207,6 +224,36 @@ async function loadPdf() {
     document.getElementById('sign-loading').innerHTML =
       `<p style="color:var(--danger)">Error loading PDF: ${esc(e.message)}</p>`;
   }
+}
+
+/* Re-render PDF after viewport resize (keeps field overlays aligned) */
+async function rerenderPdf() {
+  const area = document.getElementById('sign-pdf-area');
+  const availW = area.clientWidth - 24;
+  State.pageWraps = [];
+  area.innerHTML = '';
+  for (let i = 1; i <= State.pdfDoc.numPages; i++) {
+    const page         = await State.pdfDoc.getPage(i);
+    const base         = page.getViewport({ scale: 1 });
+    const scale        = Math.max(0.5, Math.min(1.4, availW / base.width));
+    const viewport     = page.getViewport({ scale });
+    const wrap         = document.createElement('div');
+    wrap.className     = 'pdf-page-wrap';
+    wrap.style.width   = viewport.width  + 'px';
+    wrap.style.height  = viewport.height + 'px';
+    const canvas       = document.createElement('canvas');
+    canvas.width       = viewport.width;
+    canvas.height      = viewport.height;
+    await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+    const overlay       = document.createElement('div');
+    overlay.className   = 'field-overlay-layer';
+    overlay.style.pointerEvents = 'all';
+    wrap.appendChild(canvas);
+    wrap.appendChild(overlay);
+    area.appendChild(wrap);
+    State.pageWraps.push(wrap);
+  }
+  renderFieldOverlays();
 }
 
 function renderFieldOverlays() {
@@ -333,19 +380,24 @@ function checkProgress() {
   const done     = required.filter(f => State.values[f.id]);
   const all      = required.length;
   const submitBtn = document.getElementById('sign-submit-btn');
+  const mobSubmit = document.getElementById('mob-submit-btn');
   const progress  = document.getElementById('panel-progress-text');
+  const mobProg   = document.getElementById('mob-progress-text');
 
-  if (submitBtn) submitBtn.disabled = (done.length < all);
-  if (progress) {
-    if (all === 0) {
-      progress.textContent = 'No required fields.';
-    } else if (done.length < all) {
-      progress.textContent = `${done.length} of ${all} required fields completed`;
-    } else {
-      progress.textContent = 'All fields completed ✓';
-      progress.style.color = 'var(--success)';
-    }
+  const allDone = done.length >= all;
+  if (submitBtn) submitBtn.disabled = !allDone;
+  if (mobSubmit) mobSubmit.disabled = !allDone;
+
+  let progressText, progressColor;
+  if (all === 0) {
+    progressText = 'No required fields.'; progressColor = '';
+  } else if (!allDone) {
+    progressText = `${done.length} / ${all} fields done`; progressColor = '';
+  } else {
+    progressText = 'All done ✓'; progressColor = 'var(--success)';
   }
+  if (progress) { progress.textContent = progressText; if (progressColor) progress.style.color = progressColor; }
+  if (mobProg)  { mobProg.textContent = progressText;  if (progressColor) mobProg.style.color = progressColor; }
 }
 
 function startSigning() {
@@ -615,6 +667,15 @@ function activateFieldById(id) {
   if (field) activateField(field);
 }
 
+/* ── Mobile panel toggle ─────────────────────────────────────────────────── */
+function toggleMobilePanel() {
+  const panel   = document.getElementById('sign-panel');
+  const chevron = document.getElementById('mob-chevron');
+  if (!panel) return;
+  const expanded = panel.classList.toggle('mob-expanded');
+  if (chevron) chevron.style.transform = expanded ? 'rotate(180deg)' : '';
+}
+
 /* ════════════════════════════════════════════════════════════════════════════
    EXPOSE for inline onclicks
    ════════════════════════════════════════════════════════════════════════════ */
@@ -622,6 +683,7 @@ window._signApp = {
   startSigning,
   activateField_byId: activateFieldById,
   setFont,
+  toggleMobilePanel,
 };
 
 init();

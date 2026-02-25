@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Sign Document — DocumentNeo</title>
   <link rel="icon" type="image/svg+xml" href="/icon.svg">
   <script src="/js/theme-init.js"></script>
@@ -59,11 +59,29 @@
 
     <!-- Right Panel -->
     <div class="sign-panel" id="sign-panel" style="display:none">
+
+      <!-- Mobile-only drag handle + progress bar (tap to expand/collapse field list) -->
+      <div class="sign-panel-mob-bar" onclick="window._signApp.toggleMobilePanel()">
+        <div class="sign-panel-mob-handle"></div>
+        <div class="sign-panel-mob-meta">
+          <span class="sign-panel-mob-progress" id="mob-progress-text">Loading…</span>
+          <svg class="sign-panel-mob-chevron" id="mob-chevron"
+            width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="18 15 12 9 6 15"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Signer name / email (desktop only — hidden on mobile via CSS) -->
       <div class="sign-panel-header">
         <h3 id="panel-signer-name">–</h3>
         <p id="panel-signer-email"></p>
       </div>
+
+      <!-- Field list (visible on desktop always; on mobile only when expanded) -->
       <div class="sign-fields-list" id="sign-fields-list"></div>
+
+      <!-- Action footer: always visible -->
       <div class="sign-panel-footer">
         <button class="btn btn-primary" id="sign-submit-btn" style="width:100%;justify-content:center" disabled>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
