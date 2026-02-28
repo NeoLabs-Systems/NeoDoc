@@ -41,10 +41,10 @@ export const SettingsMixin = {
     content.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-3);font-size:13px">Loading…</div>';
 
     switch (tab) {
-      case 'ai':       content.innerHTML = this._renderAiTab(); break;
-      case 'mcp':      content.innerHTML = await this._renderMcpTabAsync(); break;
+      case 'ai': content.innerHTML = this._renderAiTab(); break;
+      case 'mcp': content.innerHTML = await this._renderMcpTabAsync(); break;
       case 'security': content.innerHTML = this._renderSecurityTab(); break;
-      case 'smtp':     content.innerHTML = await this._renderSmtpTabAsync(); break;
+      case 'smtp': content.innerHTML = await this._renderSmtpTabAsync(); break;
     }
   },
 
@@ -100,8 +100,8 @@ export const SettingsMixin = {
 
   async _renderMcpTabAsync() {
     let mcpEnabled = false;
-    let mcpKeys    = [];
-    let mcpTokens  = [];
+    let mcpKeys = [];
+    let mcpTokens = [];
     try {
       const [mcpCfg, keys, tokens] = await Promise.all([
         api('GET', '/settings/mcp').catch(() => ({ mcp_enabled: false })),
@@ -109,9 +109,9 @@ export const SettingsMixin = {
         api('GET', '/mcp/oauth/tokens').catch(() => []),
       ]);
       mcpEnabled = mcpCfg.mcp_enabled;
-      mcpKeys    = keys;
-      mcpTokens  = tokens;
-    } catch (_) {}
+      mcpKeys = keys;
+      mcpTokens = tokens;
+    } catch (_) { }
 
     const mcpServerUrl = window.location.origin + '/api/mcp';
 
@@ -205,6 +205,15 @@ export const SettingsMixin = {
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
         Sign Out
       </button>
+
+      <div class="section-sep"></div>
+
+      <h3>Two-Factor Authentication</h3>
+      <p class="helper">Secure your account with an authenticator app.</p>
+      ${State.userPrefs.totp_enabled
+        ? `<div style="margin-bottom:1rem;color:var(--success);font-weight:600;font-size:13px">✓ 2FA is currently enabled</div>
+           <button class="btn btn-ghost btn-danger btn-sm" onclick="App.disable2FA()">Disable 2FA</button>`
+        : `<button class="btn btn-primary btn-sm" onclick="App.setup2FA()">Set Up 2FA</button>`}
     </div>`;
   },
 
@@ -219,7 +228,7 @@ export const SettingsMixin = {
       return `<p style="font-size:12.5px;color:var(--text-3);padding:.4rem 0">No API keys yet. Create one to connect an AI client.</p>`;
     }
     const scopeBadge = (s) => {
-      const map = { read: ['#22c55e','Read'], write: ['#f59e0b','Write'], readwrite: ['#3b82f6','R+W'] };
+      const map = { read: ['#22c55e', 'Read'], write: ['#f59e0b', 'Write'], readwrite: ['#3b82f6', 'R+W'] };
       const [color, label] = map[s] || ['#94a3b8', s];
       return `<span style="font-size:.7rem;font-weight:700;color:${color};background:${color}18;padding:.15rem .4rem;border-radius:4px">${label}</span>`;
     };
@@ -307,7 +316,7 @@ export const SettingsMixin = {
   },
 
   async createMcpKey() {
-    const name  = document.getElementById('mk-name')?.value?.trim();
+    const name = document.getElementById('mk-name')?.value?.trim();
     const scope = document.getElementById('mk-scope')?.value;
     if (!name) { toast('Key name is required.', 'warn'); return; }
     try {
@@ -366,14 +375,101 @@ export const SettingsMixin = {
 
   // ── AI / password settings ───────────────────────────────────────────────
 
+  async setup2FA() {
+    try {
+      const { secret, qrcode } = await api('GET', '/auth/2fa/generate');
+      openModal(`
+        <div class="modal" style="max-width:400px">
+          <div class="modal-header">
+            <h3>Set Up 2FA</h3>
+            <button class="icon-btn" onclick="closeModal()">✕</button>
+          </div>
+          <div class="modal-body" style="display:flex;flex-direction:column;align-items:center;text-align:center">
+            <p style="font-size:13px;color:var(--text-2);margin-bottom:1rem">
+              Scan this QR code with your authenticator app (Google Authenticator, Authy, etc.).
+            </p>
+            <img src="${esc(qrcode)}" style="width:200px;height:200px;background:#fff;border-radius:8px;padding:8px" alt="QR Code">
+            <p style="font-size:12px;color:var(--text-3);margin-top:.75rem">
+              Or manually enter this secret: <strong>${esc(secret)}</strong>
+            </p>
+            <div class="form-group" style="width:100%;margin-top:1.5rem;text-align:left">
+              <label>Enter the 6-digit code to verify:</label>
+              <input type="text" id="s-2fa-verify-code" class="form-input" placeholder="000000" pattern="[0-9]*" inputmode="numeric" maxlength="6" style="text-align:center;font-size:1.2rem;letter-spacing:0.2em">
+            </div>
+            <button class="btn btn-primary" style="width:100%;margin-top:1rem" onclick="App.verify2FA()">Verify and Enable</button>
+          </div>
+        </div>
+      `);
+    } catch (e) {
+      toast('Failed to start 2FA setup: ' + e.message, 'error');
+    }
+  },
+
+  async verify2FA() {
+    const code = document.getElementById('s-2fa-verify-code')?.value;
+    if (!code) { toast('Please enter the code.', 'warn'); return; }
+    try {
+      await api('POST', '/auth/2fa/verify', { token: code });
+      State.userPrefs.totp_enabled = true;
+      toast('2FA enabled successfully!', 'success');
+      closeModal();
+      this.switchSettingsTab('security');
+    } catch (e) {
+      toast('Verification failed: ' + e.message, 'error');
+    }
+  },
+
+  disable2FA() {
+    openModal(`
+      <div class="modal" style="max-width:380px">
+        <div class="modal-header">
+          <h3>Disable 2FA</h3>
+          <button class="icon-btn" onclick="closeModal()">✕</button>
+        </div>
+        <div class="modal-body">
+          <p style="font-size:13px;color:var(--text-2);margin-bottom:1rem">
+            Please enter your password and a current 2FA code to disable Two-Factor Authentication.
+          </p>
+          <div class="form-group" style="margin-bottom:.875rem">
+            <label>Current Password</label>
+            <input type="password" id="s-disable-2fa-pass" class="form-input">
+          </div>
+          <div class="form-group" style="margin-bottom:1.5rem">
+            <label>2FA Code</label>
+            <input type="text" id="s-disable-2fa-code" class="form-input" placeholder="000000" pattern="[0-9]*" inputmode="numeric" maxlength="6">
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:.5rem">
+            <button class="btn btn-ghost btn-sm" onclick="closeModal()">Cancel</button>
+            <button class="btn btn-danger btn-sm" onclick="App.submitDisable2FA()">Disable</button>
+          </div>
+        </div>
+      </div>
+    `);
+  },
+
+  async submitDisable2FA() {
+    const pass = document.getElementById('s-disable-2fa-pass').value;
+    const code = document.getElementById('s-disable-2fa-code').value;
+    if (!pass || !code) { toast('Both fields are required.', 'warn'); return; }
+    try {
+      await api('POST', '/auth/2fa/disable', { password: pass, token: code });
+      State.userPrefs.totp_enabled = false;
+      toast('2FA disabled.', 'success');
+      closeModal();
+      this.switchSettingsTab('security');
+    } catch (e) {
+      toast('Failed to disable 2FA: ' + e.message, 'error');
+    }
+  },
+
   async saveSettings() {
     const prefPayload = {
-      pref_ai_auto_tag:           document.getElementById('s-pref-tag')?.checked           ? 'true' : 'false',
-      pref_ai_auto_type:          document.getElementById('s-pref-type')?.checked          ? 'true' : 'false',
-      pref_ai_auto_summary:       document.getElementById('s-pref-summary')?.checked       ? 'true' : 'false',
+      pref_ai_auto_tag: document.getElementById('s-pref-tag')?.checked ? 'true' : 'false',
+      pref_ai_auto_type: document.getElementById('s-pref-type')?.checked ? 'true' : 'false',
+      pref_ai_auto_summary: document.getElementById('s-pref-summary')?.checked ? 'true' : 'false',
       pref_ai_auto_correspondent: document.getElementById('s-pref-correspondent')?.checked ? 'true' : 'false',
-      pref_ai_auto_create:        document.getElementById('s-pref-create')?.checked        ? 'true' : 'false',
-      pref_ai_auto_title:         document.getElementById('s-pref-title')?.checked         ? 'true' : 'false',
+      pref_ai_auto_create: document.getElementById('s-pref-create')?.checked ? 'true' : 'false',
+      pref_ai_auto_title: document.getElementById('s-pref-title')?.checked ? 'true' : 'false',
       pref_ai_custom_instructions: document.getElementById('s-pref-custom-instructions')?.value ?? '',
     };
     try {
@@ -387,7 +483,7 @@ export const SettingsMixin = {
 
   async changePassword() {
     const cur = document.getElementById('s-cur-pass').value;
-    const nw  = document.getElementById('s-new-pass').value;
+    const nw = document.getElementById('s-new-pass').value;
     if (!cur || !nw) { toast('Both fields required.', 'warn'); return; }
     if (nw.length < 8) { toast('New password must be at least 8 characters.', 'warn'); return; }
     try {
@@ -402,7 +498,7 @@ export const SettingsMixin = {
   // ── Email / SMTP tab ─────────────────────────────────────────────────────
   async _renderSmtpTabAsync() {
     let cfg = {};
-    try { cfg = await api('GET', '/signing/smtp'); } catch (_) {}
+    try { cfg = await api('GET', '/signing/smtp'); } catch (_) { }
     return `
     <div class="settings-panel">
       <h3>Email / SMTP</h3>
@@ -444,8 +540,8 @@ export const SettingsMixin = {
       <div class="form-group" style="margin-bottom:1rem">
         <label style="font-size:.8rem;font-weight:600">Security</label>
         <select id="smtp-secure" class="form-input">
-          <option value="tls"  ${(cfg.smtp_secure || 'tls') === 'tls'  ? 'selected' : ''}>STARTTLS (port 587)</option>
-          <option value="ssl"  ${cfg.smtp_secure === 'ssl'  ? 'selected' : ''}>SSL / TLS (port 465)</option>
+          <option value="tls"  ${(cfg.smtp_secure || 'tls') === 'tls' ? 'selected' : ''}>STARTTLS (port 587)</option>
+          <option value="ssl"  ${cfg.smtp_secure === 'ssl' ? 'selected' : ''}>SSL / TLS (port 465)</option>
           <option value="none" ${cfg.smtp_secure === 'none' ? 'selected' : ''}>None (port 25)</option>
         </select>
       </div>
@@ -462,11 +558,11 @@ export const SettingsMixin = {
   async saveSmtp() {
     const body = {
       smtp_enabled: document.getElementById('smtp-enabled').checked ? 'true' : 'false',
-      smtp_host:    document.getElementById('smtp-host').value.trim(),
-      smtp_port:    parseInt(document.getElementById('smtp-port').value, 10) || 587,
-      smtp_user:    document.getElementById('smtp-user').value.trim(),
-      smtp_from:    document.getElementById('smtp-from').value.trim(),
-      smtp_secure:  document.getElementById('smtp-secure').value,
+      smtp_host: document.getElementById('smtp-host').value.trim(),
+      smtp_port: parseInt(document.getElementById('smtp-port').value, 10) || 587,
+      smtp_user: document.getElementById('smtp-user').value.trim(),
+      smtp_from: document.getElementById('smtp-from').value.trim(),
+      smtp_secure: document.getElementById('smtp-secure').value,
     };
     const pass = document.getElementById('smtp-pass').value;
     if (pass) body.smtp_pass = pass;

@@ -159,6 +159,8 @@ for (const col of [
   `ALTER TABLE users ADD COLUMN pref_ai_auto_correspondent TEXT NOT NULL DEFAULT 'true'`,
   `ALTER TABLE users ADD COLUMN pref_ai_auto_create       TEXT NOT NULL DEFAULT 'true'`,
   `ALTER TABLE users ADD COLUMN pref_ai_auto_title        TEXT NOT NULL DEFAULT 'true'`,
+  `ALTER TABLE users ADD COLUMN totp_secret               TEXT`,
+  `ALTER TABLE users ADD COLUMN totp_enabled              INTEGER NOT NULL DEFAULT 0`,
 ]) {
   try { db.exec(col); } catch (_) {}
 }

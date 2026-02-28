@@ -1,7 +1,7 @@
 {
   "name": "neodoc",
   "version": "1.0.0",
-  "description": "NeoDoc \u2013 AI-powered self-hosted document vault",
+  "description": "NeoDoc – AI-powered self-hosted document vault",
   "main": "server/index.js",
   "scripts": {
     "start": "node server/index.js",
@@ -19,10 +19,12 @@
     "multer": "^2.0.2",
     "nodemailer": "^8.0.1",
     "openai": "^4.47.1",
-    "sharp": "^0.34.5",
     "pdf-lib": "^1.17.1",
     "pdf-parse": "^1.1.1",
     "pdfjs-dist": "^5.4.624",
+    "qrcode": "^1.5.4",
+    "sharp": "^0.34.5",
+    "speakeasy": "^2.0.0",
     "uuid": "^10.0.0"
   }
 }

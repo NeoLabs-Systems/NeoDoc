@@ -10,7 +10,8 @@ document.getElementById('tab-register').addEventListener('click', function () { 
 function switchTab(tab) {
   document.getElementById('tab-login').classList.toggle('active', tab === 'login');
   document.getElementById('tab-register').classList.toggle('active', tab === 'register');
-  document.getElementById('login-form').style.display    = tab === 'login'    ? 'flex' : 'none';
+  document.getElementById('login-form').style.display = tab === 'login' ? 'flex' : 'none';
+  document.getElementById('login-2fa-form').style.display = 'none';
   document.getElementById('register-form').style.display = tab === 'register' ? 'flex' : 'none';
 }
 
@@ -32,18 +33,25 @@ document.getElementById('login-form').addEventListener('submit', async function 
   btn.disabled = true; btn.textContent = 'Signing in…';
   try {
     var res = await fetch('/api/auth/login', {
-      method:  'POST',
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({
+      body: JSON.stringify({
         identifier: document.getElementById('login-id').value,
-        password:   document.getElementById('login-pass').value,
+        password: document.getElementById('login-pass').value,
       }),
     });
     var data = await res.json();
+    if (res.status === 403 && data['2fa_required']) {
+      document.getElementById('login-form').style.display = 'none';
+      document.getElementById('login-2fa-form').style.display = 'flex';
+      btn.disabled = false; btn.textContent = 'Sign In';
+      document.getElementById('login-totp').focus();
+      return;
+    }
     if (!res.ok) throw new Error(data.error || 'Login failed.');
-    localStorage.setItem('dn_token',    data.token);
+    localStorage.setItem('dn_token', data.token);
     localStorage.setItem('dn_username', data.username);
-    localStorage.setItem('dn_role',     data.role);
+    localStorage.setItem('dn_role', data.role);
     const next = new URLSearchParams(location.search).get('next');
     window.location.href = next || '/';
   } catch (ex) {
@@ -52,30 +60,66 @@ document.getElementById('login-form').addEventListener('submit', async function 
   }
 });
 
+document.getElementById('login-2fa-back').addEventListener('click', function () {
+  document.getElementById('login-2fa-form').style.display = 'none';
+  document.getElementById('login-form').style.display = 'flex';
+  document.getElementById('login-totp').value = '';
+});
+
+// ── 2FA ───────────────────────────────────────────────
+document.getElementById('login-2fa-form').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  hideError('login-2fa-error');
+  var btn = document.getElementById('login-2fa-btn');
+  btn.disabled = true; btn.textContent = 'Verifying…';
+  try {
+    var res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        identifier: document.getElementById('login-id').value,
+        password: document.getElementById('login-pass').value,
+        totp: document.getElementById('login-totp').value,
+      }),
+    });
+    var data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Login failed.');
+    localStorage.setItem('dn_token', data.token);
+    localStorage.setItem('dn_username', data.username);
+    localStorage.setItem('dn_role', data.role);
+    const next = new URLSearchParams(location.search).get('next');
+    window.location.href = next || '/';
+  } catch (ex) {
+    showError('login-2fa-error', ex.message);
+    btn.disabled = false; btn.textContent = 'Verify & Sign In';
+  }
+});
+
+
 // ── Register ──────────────────────────────────────────
 document.getElementById('register-form').addEventListener('submit', async function (e) {
   e.preventDefault();
   hideError('reg-error');
-  var pass  = document.getElementById('reg-pass').value;
+  var pass = document.getElementById('reg-pass').value;
   var pass2 = document.getElementById('reg-pass2').value;
   if (pass !== pass2) { showError('reg-error', 'Passwords do not match.'); return; }
   var btn = document.getElementById('reg-btn');
   btn.disabled = true; btn.textContent = 'Creating account…';
   try {
     var res = await fetch('/api/auth/register', {
-      method:  'POST',
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({
+      body: JSON.stringify({
         username: document.getElementById('reg-username').value,
-        email:    document.getElementById('reg-email').value,
+        email: document.getElementById('reg-email').value,
         password: pass,
       }),
     });
     var data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Registration failed.');
-    localStorage.setItem('dn_token',    data.token);
+    localStorage.setItem('dn_token', data.token);
     localStorage.setItem('dn_username', data.username);
-    localStorage.setItem('dn_role',     data.role);
+    localStorage.setItem('dn_role', data.role);
     const next = new URLSearchParams(location.search).get('next');
     window.location.href = next || '/';
   } catch (ex) {
