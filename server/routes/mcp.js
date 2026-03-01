@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * DocumentNeo MCP Server
+ * NeoDoc MCP Server
  *
  * Implements the Model Context Protocol (2025-03-26 streamable HTTP transport)
  * so AI clients (Claude Desktop, Cursor, etc.) can access the vault.
@@ -159,14 +159,14 @@ const AUTH_HTML = `<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Authorize – DocumentNeo</title>
+<title>Authorize – NeoDoc</title>
 <link rel="stylesheet" href="/css/mcp-auth.css">
 </head>
 <body>
 <div class="card">
   <div class="logo">🗂️</div>
   <h1>Authorize Access</h1>
-  <p class="sub"><span class="client">__CLIENT_NAME__</span> wants to access your DocumentNeo vault.</p>
+  <p class="sub"><span class="client">__CLIENT_NAME__</span> wants to access your NeoDoc vault.</p>
   __ERROR__
   <div class="scope-box __SCOPE_CLS__">
     <div class="icon">__SCOPE_ICON__</div>
@@ -183,7 +183,7 @@ const AUTH_HTML = `<!DOCTYPE html>
     <input type="hidden" name="scope"           value="__SCOPE__">
     <input type="hidden" name="code_challenge"  value="__CODE_CHALLENGE__">
     <label>Username</label>
-    <input type="text"     name="username" autocomplete="username"         required placeholder="Your DocumentNeo username">
+    <input type="text"     name="username" autocomplete="username"         required placeholder="Your NeoDoc username">
     <label>Password</label>
     <input type="password" name="password" autocomplete="current-password" required placeholder="Your password">
     <div class="btns">
@@ -803,7 +803,7 @@ router.post(
     const user = resolveMcpUser(req);
     if (!user) {
       return res.status(401)
-        .set('WWW-Authenticate', `Bearer realm="DocumentNeo MCP", error="invalid_token"`)
+        .set('WWW-Authenticate', `Bearer realm="NeoDoc MCP", error="invalid_token"`)
         .json({
           jsonrpc: '2.0', id: null,
           error: { code: -32000, message: 'Authentication required. Provide a valid Bearer API key or OAuth token.' },
@@ -830,7 +830,7 @@ router.post(
               result: {
                 protocolVersion: MCP_VERSION,
                 capabilities:    { tools: { listChanged: false } },
-                serverInfo:      { name: 'DocumentNeo MCP', version: '1.0.0' },
+                serverInfo:      { name: 'NeoDoc MCP', version: '1.0.0' },
               },
             });
             break;

@@ -9,7 +9,7 @@ const router = express.Router();
 /* GET /api/settings/public - public, no auth required */
 router.get('/public', (_req, res) => {
   res.json({
-    app_name:          process.env.APP_NAME          || 'DocumentNeo',
+    app_name:          process.env.APP_NAME          || 'NeoDoc',
     ai_enabled:        process.env.OPENAI_API_KEY    ? 'true' : 'false',
     registration_open: process.env.REGISTRATION_OPEN || 'true',
   });

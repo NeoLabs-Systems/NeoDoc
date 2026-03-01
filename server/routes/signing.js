@@ -642,7 +642,7 @@ async function generateSignedPdf(env, baseUrl = '') {
     { x: 50, y: 45, size: 7.5, font: helvetica, color: rgb(0.5,0.5,0.55) });
 
   // Footer
-  certPage.drawText('This document was electronically signed via DocumentNeo.',
+  certPage.drawText('This document was electronically signed via NeoDoc.',
     { x: 40, y: 24, size: 7.5, font: helvetica, color: rgb(0.6,0.6,0.6) });
 
   const pdfBytes = await pdfDoc.save();

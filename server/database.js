@@ -141,7 +141,7 @@ seedMany([
   ['watch_enabled',           'false'],
   ['max_file_mb',             '50'],
   ['allowed_types',           'application/pdf,image/jpeg,image/png,image/webp,image/gif,text/plain'],
-  ['app_name',                'DocumentNeo'],
+  ['app_name',                'NeoDoc'],
   ['registration_open',       'true'],
   ['mcp_enabled',             'false'],
 ]);

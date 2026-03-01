@@ -145,7 +145,7 @@ function buildInviteHtml({ envTitle, envMessage, signerName, signingUrl }) {
     <a href="${signingUrl}" style="display:inline-block;background:#6366f1;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600">Review &amp; Sign Document →</a>
     <p style="margin:24px 0 0;font-size:12px;color:#888">Or paste this link into your browser:<br><span style="color:#6366f1">${signingUrl}</span></p>
     <hr style="border:none;border-top:1px solid #eee;margin:24px 0">
-    <p style="font-size:11px;color:#aaa">Powered by DocumentNeo. This link is unique to you — do not share it.</p>
+    <p style="font-size:11px;color:#aaa">Powered by NeoDoc. This link is unique to you — do not share it.</p>
   </div>
 </div>
 </body></html>`;
@@ -168,7 +168,7 @@ function buildReminderHtml({ envTitle, signerName, signingUrl }) {
     <a href="${signingUrl}" style="display:inline-block;background:#6366f1;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600">Sign Now →</a>
     <p style="margin:24px 0 0;font-size:12px;color:#888">Link: <span style="color:#6366f1">${signingUrl}</span></p>
     <hr style="border:none;border-top:1px solid #eee;margin:24px 0">
-    <p style="font-size:11px;color:#aaa">Powered by DocumentNeo. This link is unique to you — do not share it.</p>
+    <p style="font-size:11px;color:#aaa">Powered by NeoDoc. This link is unique to you — do not share it.</p>
   </div>
 </div>
 </body></html>`;

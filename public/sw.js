@@ -1,4 +1,4 @@
-/* DocumentNeo Service Worker
+/* NeoDoc Service Worker
    Provides offline shell caching + background sync readiness */
 
 const CACHE_NAME  = 'docneo-v5';

@@ -129,7 +129,7 @@ const App = {
       settings:      'Settings',
       chat:          'Ask AI',
     };
-    document.getElementById('page-title').textContent = titles[view] || 'DocumentNeo';
+    document.getElementById('page-title').textContent = titles[view] || 'NeoDoc';
 
     switch (view) {
       case 'documents':      this.renderDocuments(); break;

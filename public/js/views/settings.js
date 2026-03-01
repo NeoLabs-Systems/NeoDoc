@@ -8,7 +8,7 @@ import { State } from '../state.js';
 export const SettingsMixin = {
 
   // ── Modal open / close ───────────────────────────────────────────────────
-  openSettingsModal() {
+  openSettingsModal(tab = 'ai') {
     const overlay = document.getElementById('settings-overlay');
     overlay.style.display = 'flex';
 
@@ -24,7 +24,7 @@ export const SettingsMixin = {
     });
 
     // Render default tab
-    this.switchSettingsTab('ai');
+    this.switchSettingsTab(tab);
   },
 
   closeSettingsModal() {
@@ -166,7 +166,7 @@ export const SettingsMixin = {
           </summary>
           <div style="margin-top:.75rem;font-size:12px;color:var(--text-3);line-height:1.6">
             <p style="margin-bottom:.5rem">Add this to your <code>claude_desktop_config.json</code>:</p>
-            <pre id="mcp-claude-config" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.75rem;font-size:.75rem;overflow-x:auto;white-space:pre-wrap;word-break:break-all">${esc(JSON.stringify({ mcpServers: { DocumentNeo: { url: mcpServerUrl, headers: { Authorization: 'Bearer YOUR_API_KEY_HERE' } } } }, null, 2))}</pre>
+            <pre id="mcp-claude-config" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.75rem;font-size:.75rem;overflow-x:auto;white-space:pre-wrap;word-break:break-all">${esc(JSON.stringify({ mcpServers: { NeoDoc: { url: mcpServerUrl, headers: { Authorization: 'Bearer YOUR_API_KEY_HERE' } } } }, null, 2))}</pre>
             <button class="btn btn-ghost btn-sm" style="margin-top:.4rem" onclick="App.copyClaudeConfig()">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
               Copy config
@@ -373,11 +373,10 @@ export const SettingsMixin = {
     }
   },
 
-  // ── AI / password settings ───────────────────────────────────────────────
-
   async setup2FA() {
     try {
       const { secret, qrcode } = await api('GET', '/auth/2fa/generate');
+      this.closeSettingsModal();
       openModal(`
         <div class="modal" style="max-width:400px">
           <div class="modal-header">
@@ -389,9 +388,6 @@ export const SettingsMixin = {
               Scan this QR code with your authenticator app (Google Authenticator, Authy, etc.).
             </p>
             <img src="${esc(qrcode)}" style="width:200px;height:200px;background:#fff;border-radius:8px;padding:8px" alt="QR Code">
-            <p style="font-size:12px;color:var(--text-3);margin-top:.75rem">
-              Or manually enter this secret: <strong>${esc(secret)}</strong>
-            </p>
             <div class="form-group" style="width:100%;margin-top:1.5rem;text-align:left">
               <label>Enter the 6-digit code to verify:</label>
               <input type="text" id="s-2fa-verify-code" class="form-input" placeholder="000000" pattern="[0-9]*" inputmode="numeric" maxlength="6" style="text-align:center;font-size:1.2rem;letter-spacing:0.2em">
@@ -413,13 +409,14 @@ export const SettingsMixin = {
       State.userPrefs.totp_enabled = true;
       toast('2FA enabled successfully!', 'success');
       closeModal();
-      this.switchSettingsTab('security');
+      this.openSettingsModal('security');
     } catch (e) {
       toast('Verification failed: ' + e.message, 'error');
     }
   },
 
   disable2FA() {
+    this.closeSettingsModal();
     openModal(`
       <div class="modal" style="max-width:380px">
         <div class="modal-header">
@@ -456,7 +453,7 @@ export const SettingsMixin = {
       State.userPrefs.totp_enabled = false;
       toast('2FA disabled.', 'success');
       closeModal();
-      this.switchSettingsTab('security');
+      this.openSettingsModal('security');
     } catch (e) {
       toast('Failed to disable 2FA: ' + e.message, 'error');
     }

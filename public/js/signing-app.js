@@ -1,5 +1,5 @@
 'use strict';
-/* ── DocumentNeo Signing — sender/manager app ─────────────────────────── */
+/* ── NeoDoc Signing — sender/manager app ─────────────────────────── */
 
 // ── Resolve PDF.js path (served from node_modules via Express) ────────────
 const PDFJS_URL = '/js/pdfjs/pdf.mjs';
@@ -1006,7 +1006,7 @@ async function switchSettingsTab(tab) {
   } else {
     content.innerHTML = `<div style="padding:1.5rem;text-align:center;color:var(--text-3);font-size:.85rem">
       <p style="margin-bottom:1rem">Other settings are available in the main app.</p>
-      <a href="/" class="btn btn-ghost btn-sm">Go to DocumentNeo →</a>
+      <a href="/" class="btn btn-ghost btn-sm">Go to NeoDoc →</a>
     </div>`;
   }
 }
@@ -1050,7 +1050,7 @@ async function renderSmtpTab() {
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem">
       <div class="form-group">
         <label>From Address (optional)</label>
-        <input type="text" id="smtp-from" value="${esc(smtp.smtp_from||'')}" placeholder="DocumentNeo Signing &lt;no-reply@…&gt;">
+        <input type="text" id="smtp-from" value="${esc(smtp.smtp_from||'')}" placeholder="NeoDoc Signing &lt;no-reply@…&gt;">
       </div>
       <div class="form-group">
         <label>Security</label>

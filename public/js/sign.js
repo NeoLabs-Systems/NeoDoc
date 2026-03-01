@@ -1,5 +1,5 @@
 'use strict';
-/* ── DocumentNeo Signing — public signer experience ──────────────────────── */
+/* ── NeoDoc Signing — public signer experience ──────────────────────── */
 
 const PDFJS_URL = '/js/pdfjs/pdf.mjs';
 

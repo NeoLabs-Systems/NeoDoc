@@ -17,6 +17,7 @@ const { router: mcpRoutes, oauthMeta } = require('./routes/mcp');
 const signingRoutes = require('./routes/signing');
 
 const { startWatcher } = require('./services/watcher');
+const { startBackup }  = require('./services/backup');
 
 const app  = express();
 const PORT = parseInt(process.env.PORT) || 3000;
@@ -137,7 +138,8 @@ app.use((err, req, res, _next) => {
 
 /* ── Start ───────────────────────────────────────────────────────────────── */
 app.listen(PORT, () => {
-  console.log(`\n  ✦ DocumentNeo running at  http://localhost:${PORT}`);
+  console.log(`\n  ✦ NeoDoc running at  http://localhost:${PORT}`);
   console.log(`  ✦ Environment: ${process.env.NODE_ENV || 'development'}\n`);
   startWatcher();
+  startBackup();
 });

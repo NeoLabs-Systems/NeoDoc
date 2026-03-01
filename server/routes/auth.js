@@ -122,7 +122,7 @@ router.get('/2fa/generate', requireAuth, async (req, res) => {
   if (user.totp_enabled) return res.status(400).json({ error: '2FA is already enabled' });
 
   const secret = speakeasy.generateSecret({
-    name: `DocumentNeo (${user.email})`
+    name: `NeoDoc (${user.email})`
   });
 
   db.prepare('UPDATE users SET totp_secret = ? WHERE id = ?').run(secret.base32, req.user.id);
