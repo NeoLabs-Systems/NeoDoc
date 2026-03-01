@@ -17,6 +17,7 @@ export const State = {
   correspondents:      [],
   userPrefs:           {
     pref_ai_custom_instructions: '',
+    totp_enabled:                false,
   },
   searchTimer:         null,
   // Mass selection

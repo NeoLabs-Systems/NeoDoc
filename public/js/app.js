@@ -82,6 +82,7 @@ const App = {
           pref_ai_auto_create:         me.pref_ai_auto_create         ?? 'true',
           pref_ai_auto_title:          me.pref_ai_auto_title          ?? 'true',
           pref_ai_custom_instructions: me.pref_ai_custom_instructions ?? '',
+          totp_enabled:                !!me.totp_enabled,
         };
       }
       this.renderSidebarTags();
