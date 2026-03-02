@@ -595,6 +595,10 @@ code { font-family: 'JetBrains Mono', monospace; font-size: .85em; }
   border-radius: calc(var(--radius) + 2px) 0 0 calc(var(--radius) + 2px);
 }
 .viewer-iframe { width: 100%; height: 100%; border: none; }
+.viewer-img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.pdf-viewer-container { overflow-y: auto; height: 100%; background: #525659; padding: 8px; }
+.pdf-loading-state { text-align: center; padding: 2rem; color: #ccc; }
+.pdf-canvas-page { display: block; margin: 0 auto 8px; max-width: 100%; }
 .viewer-sidebar {
   padding: 1rem;
   overflow-y: auto;

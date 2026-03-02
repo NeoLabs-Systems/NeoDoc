@@ -272,13 +272,5 @@ window.switchSettingsTab = (tab) => App.switchSettingsTab(tab);
 
 document.addEventListener('DOMContentLoaded', () => {
   App.init();
-
-  // Mobile sidebar toggle (moved from inline onclick in HTML)
-  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-  if (mobileMenuBtn) {
-    mobileMenuBtn.addEventListener('click', () => {
-      document.getElementById('sidebar')?.classList.toggle('open');
-    });
-  }
 });
 
