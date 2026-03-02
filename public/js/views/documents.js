@@ -307,7 +307,9 @@ export const DocumentsMixin = {
         <div class="viewer-layout">
           <div class="viewer-iframe-wrap">
             ${isViewable
-              ? `<iframe class="viewer-iframe" id="doc-viewer-iframe" src="" title="${esc(doc.title)}"></iframe>`
+              ? doc.mime_type.startsWith('image/')
+                ? `<img class="viewer-img" id="doc-viewer-img" src="" alt="${esc(doc.title)}">`
+                : `<div id="doc-pdf-container" class="pdf-viewer-container"><div class="pdf-loading-state"><div class="spinner" style="border-color:#888;border-top-color:#fff;margin:0 auto .5rem"></div>Loading PDF…</div></div>`
               : `<div style="height:100%;display:grid;place-items:center;flex-direction:column;gap:1rem;color:var(--text-3)">
                   <div style="width:80px;height:96px">${docThumb(doc, Auth.token())}</div>
                   <div style="text-align:center">
@@ -388,16 +390,25 @@ export const DocumentsMixin = {
 
     // Load viewable content via fetch (iframes can't send Authorization headers)
     if (isViewable) {
-      fetch(`/api/documents/${doc.id}/view`, { headers: { Authorization: `Bearer ${Auth.token()}` } })
-        .then(r => { if (!r.ok) throw new Error('Failed'); return r.blob(); })
-        .then(blob => {
-          const el = document.getElementById('doc-viewer-iframe');
-          if (el) { this._viewerBlobUrl = URL.createObjectURL(blob); el.src = this._viewerBlobUrl; }
-        })
-        .catch(() => {
-          const el = document.getElementById('doc-viewer-iframe');
-          if (el) el.outerHTML = `<div style="height:100%;display:grid;place-items:center;color:var(--text-3)"><p>Preview unavailable</p></div>`;
-        });
+      if (doc.mime_type.startsWith('image/')) {
+        fetch(`/api/documents/${doc.id}/view`, { headers: { Authorization: `Bearer ${Auth.token()}` } })
+          .then(r => { if (!r.ok) throw new Error('Failed'); return r.blob(); })
+          .then(blob => {
+            const el = document.getElementById('doc-viewer-img');
+            if (el) { this._viewerBlobUrl = URL.createObjectURL(blob); el.src = this._viewerBlobUrl; }
+          })
+          .catch(() => {
+            const el = document.getElementById('doc-viewer-img');
+            if (el) el.outerHTML = `<div style="height:100%;display:grid;place-items:center;color:var(--text-3)"><p>Preview unavailable</p></div>`;
+          });
+      } else {
+        // PDF: use PDF.js for cross-platform rendering (blob-URL iframes fail on iOS/PWA)
+        this._renderPdfCanvas(doc.id, document.getElementById('doc-pdf-container'))
+          .catch(() => {
+            const c = document.getElementById('doc-pdf-container');
+            if (c) c.innerHTML = `<div style="height:100%;display:grid;place-items:center;color:#ccc"><p>Preview unavailable</p></div>`;
+          });
+      }
     }
 
     fetch('/api/settings/public', { headers: { Authorization: `Bearer ${Auth.token()}` } })
@@ -419,18 +430,20 @@ export const DocumentsMixin = {
     rotBtns.forEach(b => { b.disabled = true; b.style.opacity = '.4'; });
     try {
       const res = await api('POST', `/documents/${id}/rotate`, { angle });
-      // Reload viewer: fetch with Authorization header → new blob URL
-      // (avoids the ?token= query-param path which some proxies strip, causing 401)
-      const iframe = document.getElementById('doc-viewer-iframe');
-      if (iframe) {
+      // Reload viewer after rotation
+      const pdfContainer = document.getElementById('doc-pdf-container');
+      const imgEl = document.getElementById('doc-viewer-img');
+      if (imgEl) {
         fetch(`/api/documents/${id}/view`, { headers: { Authorization: `Bearer ${Auth.token()}` } })
           .then(r => { if (!r.ok) throw new Error(); return r.blob(); })
           .then(blob => {
             if (this._viewerBlobUrl) URL.revokeObjectURL(this._viewerBlobUrl);
             this._viewerBlobUrl = URL.createObjectURL(blob);
-            iframe.src = this._viewerBlobUrl;
+            imgEl.src = this._viewerBlobUrl;
           })
           .catch(() => {});
+      } else if (pdfContainer) {
+        this._renderPdfCanvas(id, pdfContainer).catch(() => {});
       }
       toast(res.reprocessed ? 'Rotated — re-scanning with AI…' : 'Document rotated.', 'success');
       this.renderDocuments().catch(() => {});
@@ -482,5 +495,28 @@ export const DocumentsMixin = {
         setTimeout(() => URL.revokeObjectURL(url), 10000);
       })
       .catch(() => toast('Download failed.', 'error'));
+  },
+
+  async _renderPdfCanvas(id, container) {
+    if (!container) return;
+    const buf = await fetch(`/api/documents/${id}/view`, { headers: { Authorization: `Bearer ${Auth.token()}` } })
+      .then(r => { if (!r.ok) throw new Error('Failed'); return r.arrayBuffer(); });
+    const pdfjsLib = await import('/js/pdfjs/pdf.mjs');
+    pdfjsLib.GlobalWorkerOptions.workerSrc = '/js/pdfjs/pdf.worker.mjs';
+    const pdfDoc = await pdfjsLib.getDocument({ data: buf }).promise;
+    container.innerHTML = '';
+    for (let i = 1; i <= pdfDoc.numPages; i++) {
+      const page     = await pdfDoc.getPage(i);
+      const availW   = container.clientWidth - 16;
+      const base     = page.getViewport({ scale: 1 });
+      const scale    = Math.max(0.5, availW / base.width); // 0.5 = minimum readable scale
+      const viewport = page.getViewport({ scale });
+      const canvas   = document.createElement('canvas');
+      canvas.width   = viewport.width;
+      canvas.height  = viewport.height;
+      canvas.className = 'pdf-canvas-page';
+      await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+      container.appendChild(canvas);
+    }
   },
 };
