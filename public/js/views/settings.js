@@ -41,7 +41,7 @@ export const SettingsMixin = {
     content.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-3);font-size:13px">Loading…</div>';
 
     switch (tab) {
-      case 'ai': content.innerHTML = this._renderAiTab(); break;
+      case 'ai': content.innerHTML = await this._renderAiTabAsync(); break;
       case 'mcp': content.innerHTML = await this._renderMcpTabAsync(); break;
       case 'security': content.innerHTML = this._renderSecurityTab(); break;
       case 'smtp': content.innerHTML = await this._renderSmtpTabAsync(); break;
@@ -49,12 +49,49 @@ export const SettingsMixin = {
   },
 
   // ── Tab panels ──────────────────────────────────────────────────────────
-  _renderAiTab() {
+  async _renderAiTabAsync() {
     const prefs = State.userPrefs;
+    let adminSettings = null;
+    if (Auth.isAdmin()) {
+      try { adminSettings = await api('GET', '/settings'); } catch (_) { }
+    }
     return `
     <div class="settings-panel">
       <h3>AI Preferences</h3>
-      <p class="helper">Applied to your uploads. Requires <code>OPENAI_API_KEY</code> to be set in <code>.env</code>.</p>
+      <p class="helper">Applied to your uploads. AI becomes available when an OpenAI API key is configured in server settings or via <code>OPENAI_API_KEY</code> in <code>.env</code>.</p>
+      ${adminSettings ? `
+      <div class="settings-card" style="margin-bottom:1rem">
+        <h3 style="margin-bottom:.5rem">OpenAI Configuration</h3>
+        <p class="helper" style="margin-bottom:1rem">
+          ${adminSettings.openai_api_key_source === 'env'
+            ? 'An OpenAI API key is currently provided by .env. That value takes precedence over any key saved here.'
+            : adminSettings.openai_api_key_source === 'settings'
+              ? 'An OpenAI API key is currently stored in app settings.'
+              : 'No OpenAI API key is configured yet.'}
+        </p>
+        <div class="form-group" style="margin-bottom:.6rem">
+          <label style="font-size:.82rem;font-weight:600">OpenAI API Key</label>
+          <input
+            type="password"
+            id="s-openai-api-key"
+            class="form-input"
+            value=""
+            placeholder="${adminSettings.openai_api_key ? 'Stored key configured. Enter a new key to replace it.' : 'sk-...'}"
+            data-has-stored-key="${adminSettings.openai_api_key ? 'true' : 'false'}"
+            autocomplete="off"
+            spellcheck="false"
+          >
+          <div style="font-size:.77rem;color:var(--text-3);margin-top:.35rem">
+            Leave blank to keep the current stored key. Enter a new key to replace it.
+          </div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:.5rem">
+          <button class="btn btn-ghost btn-sm" onclick="App.clearOpenAiKey()" ${adminSettings.openai_api_key ? '' : 'disabled'}>
+            Clear Stored Key
+          </button>
+        </div>
+      </div>
+      <div class="section-sep"></div>` : ''}
       <div class="toggle-row" style="margin-bottom:.75rem">
         <span>Auto-tag on upload</span>
         <input type="checkbox" class="toggle" id="s-pref-tag" ${prefs.pref_ai_auto_tag !== 'false' ? 'checked' : ''}>
@@ -471,10 +508,37 @@ export const SettingsMixin = {
     };
     try {
       await api('PATCH', '/auth/me/preferences', prefPayload);
+      if (Auth.isAdmin()) {
+        const openAiKeyInput = document.getElementById('s-openai-api-key');
+        const nextOpenAiKey = openAiKeyInput?.value?.trim() || '';
+        if (nextOpenAiKey) {
+          await api('PUT', '/settings', { openai_api_key: nextOpenAiKey });
+          openAiKeyInput.value = '';
+          openAiKeyInput.dataset.hasStoredKey = 'true';
+          openAiKeyInput.placeholder = 'Stored key configured. Enter a new key to replace it.';
+        }
+      }
       Object.assign(State.userPrefs, prefPayload);
       toast('Saved.', 'success');
     } catch (e) {
       toast('Save failed: ' + e.message, 'error');
+    }
+  },
+
+  async clearOpenAiKey() {
+    if (!confirm('Clear the stored OpenAI API key? AI features will only work if a key is still provided via .env.')) return;
+    try {
+      await api('PUT', '/settings', { openai_api_key: '' });
+      const input = document.getElementById('s-openai-api-key');
+      if (input) {
+        input.value = '';
+        input.dataset.hasStoredKey = 'false';
+        input.placeholder = 'sk-...';
+      }
+      this.switchSettingsTab('ai');
+      toast('Stored OpenAI API key cleared.', 'success');
+    } catch (e) {
+      toast('Failed: ' + e.message, 'error');
     }
   },
 
@@ -602,4 +666,3 @@ export const SettingsMixin = {
     </div>`);
   },
 };
-

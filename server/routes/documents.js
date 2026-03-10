@@ -30,6 +30,10 @@ function getSetting(key) {
   const row = db.prepare('SELECT value FROM settings WHERE key = ?').get(key);
   return row ? row.value : null;
 }
+function hasAiKey() {
+  const apiKey = process.env.OPENAI_API_KEY || getSetting('openai_api_key');
+  return !!(apiKey && apiKey !== '••••••••');
+}
 function sanitise(str, max = 500) {
   if (typeof str !== 'string') return '';
   return str.trim().slice(0, max).replace(/[<>]/g, '');
@@ -119,7 +123,7 @@ router.post('/', (req, res, next) => {
     audit(req.user.id, 'upload', id, { title, filename: req.file.originalname }, req.ip);
 
     // AI auto-processing (non-blocking)
-    if (process.env.OPENAI_API_KEY) {
+    if (hasAiKey()) {
       autoProcess(id, textContent, req.user.id).catch(() => {});
     }
 
@@ -360,7 +364,7 @@ router.post('/:id/rotate', async (req, res) => {
 
     // Re-run AI whenever we have text content (non-blocking)
     let reprocessed = false;
-    if (process.env.OPENAI_API_KEY && newTextContent && newTextContent.trim().length >= 20) {
+    if (hasAiKey() && newTextContent && newTextContent.trim().length >= 20) {
       autoProcess(req.params.id, newTextContent, req.user.id).catch(() => {});
       reprocessed = true;
     }

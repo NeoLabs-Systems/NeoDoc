@@ -16,8 +16,17 @@ const aiLimiter = rateLimit({
   message: { error: 'AI rate limit reached, please wait a moment.' }
 });
 
+function getSetting(key) {
+  return db.prepare('SELECT value FROM settings WHERE key=?').get(key)?.value ?? null;
+}
+
+function hasAiKey() {
+  const apiKey = process.env.OPENAI_API_KEY || getSetting('openai_api_key');
+  return !!(apiKey && apiKey !== '••••••••');
+}
+
 function aiGuard(req, res, next) {
-  if (!process.env.OPENAI_API_KEY) return res.status(503).json({ error: 'AI not configured. Set OPENAI_API_KEY in .env' });
+  if (!hasAiKey()) return res.status(503).json({ error: 'AI not configured. Add an OpenAI API key in settings or set OPENAI_API_KEY in .env.' });
   next();
 }
 
@@ -112,7 +121,6 @@ router.post('/chat', aiGuard, aiLimiter, async (req, res) => {
     const context = contextParts.join('\n\n') || 'No matching documents found in the vault.';
 
     // 4. Build message array
-    const getSetting = (key) => { const r = db.prepare('SELECT value FROM settings WHERE key=?').get(key); return r?.value ?? null; };
     const apiKey = process.env.OPENAI_API_KEY || getSetting('openai_api_key');
     if (!apiKey || apiKey === '••••••••') return res.status(503).json({ error: 'OpenAI API key not configured.' });
     const client = new OpenAI({ apiKey });
